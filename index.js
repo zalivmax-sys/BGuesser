@@ -33,7 +33,6 @@ const CLIENT_ID = process.env.CLIENT_ID;
 
 let guessGame = null;
 
-// One Tic-Tac-Toe game per user
 const tttGames = new Map();
 
 // =====================================================
@@ -103,7 +102,7 @@ const commands = [
 ].map(command => command.toJSON());
 
 // =====================================================
-// REGISTER SLASH COMMANDS
+// REGISTER COMMANDS
 // =====================================================
 
 async function registerCommands() {
@@ -133,7 +132,7 @@ async function registerCommands() {
 }
 
 // =====================================================
-// BOT READY
+// READY
 // =====================================================
 
 client.once("clientReady", async () => {
@@ -146,7 +145,7 @@ client.once("clientReady", async () => {
 });
 
 // =====================================================
-// B GAMES MENU
+// GAMES MENU
 // =====================================================
 
 function gamesEmbed() {
@@ -197,7 +196,7 @@ function gamesButtons() {
 }
 
 // =====================================================
-// BGUESSER DIFFICULTY MENU
+// BGUESSER DIFFICULTY
 // =====================================================
 
 function guessDifficultyEmbed() {
@@ -262,7 +261,7 @@ function guessDifficultyButtons() {
 }
 
 // =====================================================
-// TICTACTOE DIFFICULTY MENU
+// TICTACTOE DIFFICULTY
 // =====================================================
 
 function tttDifficultyEmbed() {
@@ -342,7 +341,7 @@ function tttDifficultyButtons() {
 }
 
 // =====================================================
-// TICTACTOE BOARD
+// CREATE TICTACTOE BOARD
 // =====================================================
 
 function createBoard() {
@@ -354,6 +353,10 @@ function createBoard() {
     ];
 }
 
+// =====================================================
+// CREATE TICTACTOE BUTTONS
+// =====================================================
+
 function createBoardButtons(
     userId,
     board,
@@ -362,80 +365,101 @@ function createBoardButtons(
 
     const rows = [];
 
-    for (let row = 0; row < 3; row++) {
+    for (
+        let row = 0;
+        row < 3;
+        row++
+    ) {
 
         const actionRow =
             new ActionRowBuilder();
 
-        for (let column = 0; column < 3; column++) {
+        for (
+            let column = 0;
+            column < 3;
+            column++
+        ) {
 
             const position =
                 row * 3 + column;
 
-            let label = " ";
+            let button;
 
+            // X
             if (
                 board[position] === "X"
             ) {
-                label = "❌";
+
+                button =
+                    new ButtonBuilder()
+                        .setCustomId(
+                            `BG_TTT_MOVE_${userId}_${position}`
+                        )
+                        .setLabel("X")
+                        .setEmoji("❌")
+                        .setStyle(
+                            ButtonStyle.Danger
+                        );
+
             }
 
-            if (
+            // O
+            else if (
                 board[position] === "O"
             ) {
-                label = "⭕";
+
+                button =
+                    new ButtonBuilder()
+                        .setCustomId(
+                            `BG_TTT_MOVE_${userId}_${position}`
+                        )
+                        .setLabel("O")
+                        .setEmoji("⭕")
+                        .setStyle(
+                            ButtonStyle.Primary
+                        );
+
             }
 
-            let style =
-                ButtonStyle.Secondary;
+            // EMPTY
+            else {
 
-            if (
-                board[position] === "X"
-            ) {
-                style =
-                    ButtonStyle.Danger;
+                button =
+                    new ButtonBuilder()
+                        .setCustomId(
+                            `BG_TTT_MOVE_${userId}_${position}`
+                        )
+                        .setEmoji("⬜")
+                        .setStyle(
+                            ButtonStyle.Secondary
+                        );
             }
 
-            if (
-                board[position] === "O"
-            ) {
-                style =
-                    ButtonStyle.Primary;
-            }
+            button.setDisabled(
+                disabled ||
+                board[position] !== null
+            );
 
             actionRow.addComponents(
-
-                new ButtonBuilder()
-
-                    .setCustomId(
-                        `BG_TTT_MOVE_${userId}_${position}`
-                    )
-
-                    .setLabel(label)
-
-                    .setStyle(style)
-
-                    .setDisabled(
-                        disabled ||
-                        board[position] !== null
-                    )
-
+                button
             );
         }
 
-        rows.push(actionRow);
+        rows.push(
+            actionRow
+        );
     }
 
     return rows;
 }
 
 // =====================================================
-// TICTACTOE WIN CHECK
+// WIN CHECK
 // =====================================================
 
 function checkWinner(board) {
 
-    const winningLines = [
+    const lines = [
 
         [0, 1, 2],
         [3, 4, 5],
@@ -452,7 +476,7 @@ function checkWinner(board) {
 
     for (
         const [a, b, c]
-        of winningLines
+        of lines
     ) {
 
         if (
@@ -485,7 +509,11 @@ function getEmptySpaces(board) {
 
     const spaces = [];
 
-    for (let i = 0; i < 9; i++) {
+    for (
+        let i = 0;
+        i < 9;
+        i++
+    ) {
 
         if (
             board[i] === null
@@ -574,25 +602,30 @@ function minimax(
     if (
         result === "O"
     ) {
+
         return 10;
     }
 
     if (
         result === "X"
     ) {
+
         return -10;
     }
 
     if (
         result === "DRAW"
     ) {
+
         return 0;
     }
 
     const spaces =
         getEmptySpaces(board);
 
-    if (maximizing) {
+    if (
+        maximizing
+    ) {
 
         let bestScore =
             -Infinity;
@@ -657,7 +690,7 @@ function minimax(
 }
 
 // =====================================================
-// PERFECT AI MOVE
+// PERFECT MOVE
 // =====================================================
 
 function perfectMove(board) {
@@ -704,7 +737,7 @@ function perfectMove(board) {
 }
 
 // =====================================================
-// AI
+// AI MOVE
 // =====================================================
 
 function chooseAIMove(
@@ -721,17 +754,17 @@ function chooseAIMove(
             Math.random() < 0.2
         ) {
 
-            const winningMove =
+            const win =
                 findWinningMove(
                     board,
                     "O"
                 );
 
             if (
-                winningMove !== null
+                win !== null
             ) {
 
-                return winningMove;
+                return win;
             }
         }
 
@@ -743,34 +776,34 @@ function chooseAIMove(
         difficulty === "medium"
     ) {
 
-        const winningMove =
+        const win =
             findWinningMove(
                 board,
                 "O"
             );
 
         if (
-            winningMove !== null
+            win !== null
         ) {
 
-            return winningMove;
+            return win;
         }
 
         if (
             Math.random() < 0.7
         ) {
 
-            const blockingMove =
+            const block =
                 findWinningMove(
                     board,
                     "X"
                 );
 
             if (
-                blockingMove !== null
+                block !== null
             ) {
 
-                return blockingMove;
+                return block;
             }
         }
 
@@ -782,30 +815,30 @@ function chooseAIMove(
         difficulty === "hard"
     ) {
 
-        const winningMove =
+        const win =
             findWinningMove(
                 board,
                 "O"
             );
 
         if (
-            winningMove !== null
+            win !== null
         ) {
 
-            return winningMove;
+            return win;
         }
 
-        const blockingMove =
+        const block =
             findWinningMove(
                 board,
                 "X"
             );
 
         if (
-            blockingMove !== null
+            block !== null
         ) {
 
-            return blockingMove;
+            return block;
         }
 
         if (
@@ -913,7 +946,9 @@ function createTTTEmbed(game) {
 
         .setTitle("⭕ BTikTakToe")
 
-        .setDescription(description)
+        .setDescription(
+            description
+        )
 
         .setColor(
             game.status === "WIN"
@@ -924,12 +959,13 @@ function createTTTEmbed(game) {
         )
 
         .setFooter({
-            text: "BGames • Made by @rainofgd"
+            text:
+                "BGames • Made by @rainofgd"
         });
 }
 
 // =====================================================
-// INTERACTIONS
+// INTERACTION HANDLER
 // =====================================================
 
 client.on(
@@ -946,10 +982,7 @@ client.on(
                 interaction.isChatInputCommand()
             ) {
 
-                // ---------------------------------------------
                 // /games
-                // ---------------------------------------------
-
                 if (
                     interaction.commandName ===
                     "games"
@@ -968,10 +1001,7 @@ client.on(
                     return;
                 }
 
-                // ---------------------------------------------
                 // /guess
-                // ---------------------------------------------
-
                 if (
                     interaction.commandName ===
                     "guess"
@@ -1005,10 +1035,7 @@ client.on(
                     return;
                 }
 
-                // ---------------------------------------------
                 // /tictactoe
-                // ---------------------------------------------
-
                 if (
                     interaction.commandName ===
                     "tictactoe"
@@ -1049,7 +1076,7 @@ client.on(
             }
 
             // =================================================
-            // BUTTONS
+            // BUTTON CHECK
             // =================================================
 
             if (
@@ -1067,7 +1094,7 @@ client.on(
             );
 
             // =================================================
-            // BGUESSER FROM GAMES MENU
+            // GAMES → BGUESSER
             // =================================================
 
             if (
@@ -1103,7 +1130,7 @@ client.on(
             }
 
             // =================================================
-            // TTT FROM GAMES MENU
+            // GAMES → TTT
             // =================================================
 
             if (
@@ -1206,27 +1233,21 @@ client.on(
                 const game = {
 
                     userId:
-
                         userId,
 
                     difficulty:
-
                         difficulty,
 
                     difficultyName:
-
                         settings.name,
 
                     board:
-
                         createBoard(),
 
                     turn:
-
                         "PLAYER",
 
                     status:
-
                         "PLAYING"
                 };
 
@@ -1324,23 +1345,18 @@ client.on(
                 guessGame = {
 
                     number:
-
                         number,
 
                     max:
-
                         settings.max,
 
                     guessesLeft:
-
                         settings.guesses,
 
                     totalGuesses:
-
                         settings.guesses,
 
                     lastDistance:
-
                         null
                 };
 
@@ -1381,7 +1397,7 @@ client.on(
             }
 
             // =================================================
-            // TTT MOVE
+            // TTT BOARD MOVE
             // =================================================
 
             if (
@@ -1398,11 +1414,11 @@ client.on(
                         prefix.length
                     );
 
-                const lastUnderscore =
+                const separator =
                     data.lastIndexOf("_");
 
                 if (
-                    lastUnderscore === -1
+                    separator === -1
                 ) {
 
                     return;
@@ -1411,13 +1427,13 @@ client.on(
                 const userId =
                     data.substring(
                         0,
-                        lastUnderscore
+                        separator
                     );
 
                 const position =
                     Number(
                         data.substring(
-                            lastUnderscore + 1
+                            separator + 1
                         )
                     );
 
@@ -1433,7 +1449,7 @@ client.on(
                     await interaction.reply({
 
                         content:
-                            "❌ This game has already ended.",
+                            "❌ This game has ended.",
 
                         ephemeral: true
                     });
@@ -1508,10 +1524,7 @@ client.on(
                     return;
                 }
 
-                // ---------------------------------------------
                 // PLAYER MOVE
-                // ---------------------------------------------
-
                 game.board[position] =
                     "X";
 
@@ -1520,7 +1533,7 @@ client.on(
                         game.board
                     );
 
-                // PLAYER WINS
+                // PLAYER WIN
                 if (
                     result === "X"
                 ) {
@@ -1578,10 +1591,7 @@ client.on(
                     return;
                 }
 
-                // ---------------------------------------------
                 // AI TURN
-                // ---------------------------------------------
-
                 game.turn =
                     "AI";
 
@@ -1599,7 +1609,7 @@ client.on(
                         )
                 });
 
-                // Wait before AI moves
+                // AI DELAY
                 setTimeout(
                     async () => {
 
@@ -1615,7 +1625,6 @@ client.on(
                             return;
                         }
 
-                        // AI MOVE
                         const aiMove =
                             chooseAIMove(
                                 currentGame.board,
@@ -1636,7 +1645,7 @@ client.on(
                                 currentGame.board
                             );
 
-                        // AI WINS
+                        // AI WIN
                         if (
                             result === "O"
                         ) {
@@ -1662,7 +1671,7 @@ client.on(
                             );
                         }
 
-                        // PLAYER'S TURN
+                        // PLAYER TURN
                         else {
 
                             currentGame.turn =
@@ -1706,8 +1715,19 @@ client.on(
         } catch (error) {
 
             console.error(
-                "Interaction error:",
+                "===================================="
+            );
+
+            console.error(
+                "INTERACTION ERROR:"
+            );
+
+            console.error(
                 error
+            );
+
+            console.error(
+                "===================================="
             );
 
             try {
@@ -1778,10 +1798,7 @@ client.on(
             return;
         }
 
-        // =============================================
-        // CORRECT GUESS
-        // =============================================
-
+        // CORRECT
         if (
             guess ===
             guessGame.number
@@ -1823,10 +1840,7 @@ client.on(
             return;
         }
 
-        // =============================================
         // WARMER / COLDER
-        // =============================================
-
         const distance =
             Math.abs(
                 guess -
@@ -1870,10 +1884,7 @@ client.on(
 
         guessGame.guessesLeft--;
 
-        // =============================================
         // OUT OF GUESSES
-        // =============================================
-
         if (
             guessGame.guessesLeft <=
             0
@@ -1908,10 +1919,7 @@ client.on(
             return;
         }
 
-        // =============================================
         // WRONG GUESS
-        // =============================================
-
         await message.channel.send({
 
             embeds: [
@@ -1940,7 +1948,7 @@ client.on(
 );
 
 // =====================================================
-// ERROR HANDLERS
+// ERROR LOGGING
 // =====================================================
 
 client.on(
