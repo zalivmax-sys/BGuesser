@@ -397,7 +397,7 @@ function createBoardButtons(
                         )
                         .setEmoji("❌")
                         .setStyle(
-                            ButtonStyle.Danger
+                            ButtonStyle.Success
                         );
 
             }
