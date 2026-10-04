@@ -163,6 +163,9 @@ function gamesEmbed() {
             "⭕ **BTikTakToe**\n" +
             "Play Tic-Tac-Toe against an AI.\n\n" +
 
+            "🪨 **Rock Paper Scissors**\n" +
+            "Play Rock Paper Scissors against the bot.\n\n" +
+
             "━━━━━━━━━━━━━━━━━━\n\n" +
 
             "Made by **@rainofgd**"
@@ -188,6 +191,146 @@ function gamesButtons() {
                     .setCustomId("BG_GAMES_TTT")
                     .setLabel("BTikTakToe")
                     .setEmoji("⭕")
+                    .setStyle(ButtonStyle.Success),
+
+                new ButtonBuilder()
+                    .setCustomId("BG_GAMES_RPS")
+                    .setLabel("Rock Paper Scissors")
+                    .setEmoji("🪨")
+                    .setStyle(ButtonStyle.Secondary)
+
+            )
+
+    ];
+}
+
+// =====================================================
+// ROCK PAPER SCISSORS
+// =====================================================
+
+function rpsEmbed() {
+
+    return new EmbedBuilder()
+
+        .setTitle("🪨 Rock Paper Scissors")
+
+        .setDescription(
+            "**Choose your move:**\n\n" +
+
+            "🪨 **Rock**\n" +
+            "📄 **Paper**\n" +
+            "✂️ **Scissors**\n\n" +
+
+            "The bot will choose at the same time!"
+        )
+
+        .setColor(0x5865F2)
+
+        .setFooter({
+            text: "BGames • Made by @rainofgd"
+        });
+}
+
+function rpsButtons() {
+
+    return [
+
+        new ActionRowBuilder()
+            .addComponents(
+
+                new ButtonBuilder()
+                    .setCustomId("BG_RPS_ROCK")
+                    .setLabel("Rock")
+                    .setEmoji("🪨")
+                    .setStyle(ButtonStyle.Secondary),
+
+                new ButtonBuilder()
+                    .setCustomId("BG_RPS_PAPER")
+                    .setLabel("Paper")
+                    .setEmoji("📄")
+                    .setStyle(ButtonStyle.Primary),
+
+                new ButtonBuilder()
+                    .setCustomId("BG_RPS_SCISSORS")
+                    .setLabel("Scissors")
+                    .setEmoji("✂️")
+                    .setStyle(ButtonStyle.Danger)
+
+            )
+
+    ];
+}
+
+function rpsResultEmbed(
+    playerChoice,
+    botChoice,
+    result
+) {
+
+    let resultText;
+    let color;
+
+    if (
+        result === "WIN"
+    ) {
+
+        resultText =
+            "🏆 **YOU WIN!**";
+
+        color =
+            0x57F287;
+
+    } else if (
+        result === "LOSE"
+    ) {
+
+        resultText =
+            "🤖 **BOT WINS!**";
+
+        color =
+            0xED4245;
+
+    } else {
+
+        resultText =
+            "🤝 **DRAW!**";
+
+        color =
+            0x5865F2;
+    }
+
+    return new EmbedBuilder()
+
+        .setTitle("🪨 Rock Paper Scissors")
+
+        .setDescription(
+
+            `👤 **You:** ${playerChoice}\n` +
+            `🤖 **Bot:** ${botChoice}\n\n` +
+
+            "━━━━━━━━━━━━━━━━━━\n\n" +
+
+            resultText
+        )
+
+        .setColor(color)
+
+        .setFooter({
+            text: "BGames • Made by @rainofgd"
+        });
+}
+
+function rpsResultButtons() {
+
+    return [
+
+        new ActionRowBuilder()
+            .addComponents(
+
+                new ButtonBuilder()
+                    .setCustomId("BG_RPS_PLAY_AGAIN")
+                    .setLabel("Play Again")
+                    .setEmoji("🔄")
                     .setStyle(ButtonStyle.Success)
 
             )
@@ -1161,6 +1304,158 @@ client.on(
 
                     components:
                         tttDifficultyButtons()
+                });
+
+                return;
+            }
+
+            // =================================================
+            // GAMES → ROCK PAPER SCISSORS
+            // =================================================
+
+            if (
+                id === "BG_GAMES_RPS"
+            ) {
+
+                await interaction.update({
+
+                    embeds: [
+                        rpsEmbed()
+                    ],
+
+                    components:
+                        rpsButtons()
+                });
+
+                return;
+            }
+
+            // =================================================
+            // ROCK PAPER SCISSORS MOVE
+            // =================================================
+
+            if (
+                id === "BG_RPS_ROCK" ||
+                id === "BG_RPS_PAPER" ||
+                id === "BG_RPS_SCISSORS"
+            ) {
+
+                const choices = {
+
+                    BG_RPS_ROCK: {
+                        name: "🪨 Rock",
+                        value: "rock"
+                    },
+
+                    BG_RPS_PAPER: {
+                        name: "📄 Paper",
+                        value: "paper"
+                    },
+
+                    BG_RPS_SCISSORS: {
+                        name: "✂️ Scissors",
+                        value: "scissors"
+                    }
+
+                };
+
+                const player =
+                    choices[id];
+
+                const botChoices = [
+                    {
+                        name: "🪨 Rock",
+                        value: "rock"
+                    },
+                    {
+                        name: "📄 Paper",
+                        value: "paper"
+                    },
+                    {
+                        name: "✂️ Scissors",
+                        value: "scissors"
+                    }
+                ];
+
+                const bot =
+                    botChoices[
+                        Math.floor(
+                            Math.random() *
+                            botChoices.length
+                        )
+                    ];
+
+                let result;
+
+                if (
+                    player.value ===
+                    bot.value
+                ) {
+
+                    result =
+                        "DRAW";
+
+                } else if (
+
+                    (
+                        player.value === "rock" &&
+                        bot.value === "scissors"
+                    ) ||
+
+                    (
+                        player.value === "paper" &&
+                        bot.value === "rock"
+                    ) ||
+
+                    (
+                        player.value === "scissors" &&
+                        bot.value === "paper"
+                    )
+
+                ) {
+
+                    result =
+                        "WIN";
+
+                } else {
+
+                    result =
+                        "LOSE";
+                }
+
+                await interaction.update({
+
+                    embeds: [
+                        rpsResultEmbed(
+                            player.name,
+                            bot.name,
+                            result
+                        )
+                    ],
+
+                    components:
+                        rpsResultButtons()
+                });
+
+                return;
+            }
+
+            // =================================================
+            // ROCK PAPER SCISSORS PLAY AGAIN
+            // =================================================
+
+            if (
+                id === "BG_RPS_PLAY_AGAIN"
+            ) {
+
+                await interaction.update({
+
+                    embeds: [
+                        rpsEmbed()
+                    ],
+
+                    components:
+                        rpsButtons()
                 });
 
                 return;
