@@ -427,6 +427,7 @@ function createBoardButtons(
                         .setCustomId(
                             `BG_TTT_MOVE_${userId}_${position}`
                         )
+                        .setLabel("\u200B")
                         .setStyle(
                             ButtonStyle.Secondary
                         );
